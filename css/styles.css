@@ -1,0 +1,297 @@
+/**
+ * Custom styles for Kubi's Benchmark Leaderboard
+ * Extends Tailwind CSS and Tabulator styling
+ */
+
+/* Tab Navigation */
+.tab-btn {
+    padding: 12px 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+.tab-btn:hover {
+    color: #374151;
+    border-bottom-color: #d1d5db;
+}
+
+.tab-btn.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+}
+
+.tab-content {
+    display: block;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+/* Rank medals */
+.rank-medal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.rank-gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffec8b 50%, #ffd700 100%);
+    color: #8b6914;
+    box-shadow: 0 2px 4px rgba(255, 215, 0, 0.4);
+}
+
+.rank-silver {
+    background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 50%, #c0c0c0 100%);
+    color: #5a5a5a;
+    box-shadow: 0 2px 4px rgba(192, 192, 192, 0.4);
+}
+
+.rank-bronze {
+    background: linear-gradient(135deg, #cd7f32 0%, #daa06d 50%, #cd7f32 100%);
+    color: #5c3d1e;
+    box-shadow: 0 2px 4px rgba(205, 127, 50, 0.4);
+}
+
+.rank-number {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+/* Score badges */
+.score-pass {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    background-color: #d1fae5;
+    color: #065f46;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.score-fail {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    background-color: #fee2e2;
+    color: #991b1b;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.score-partial {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    background-color: #fef3c7;
+    color: #92400e;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.score-total {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    background-color: #e0e7ff;
+    color: #3730a3;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+/* Tabulator customizations */
+.tabulator {
+    border: none;
+    font-size: 14px;
+}
+
+.tabulator .tabulator-tableholder {
+    border: none;
+}
+
+.tabulator .tabulator-row .tabulator-cell {
+    border: none !important;
+}
+
+.tabulator .tabulator-row {
+    border: none !important;
+}
+
+.tabulator .tabulator-row.tabulator-group,
+.tabulator .tabulator-row.tabulator-group:nth-child(even),
+.tabulator .tabulator-row.tabulator-group:nth-child(odd) {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+/* Vertical separators between model sections */
+#detail-table .tabulator-col-group {
+    border-left: 2px solid #d1d5db !important;
+}
+
+#detail-table .tabulator-cell[tabulator-field$="_score"] {
+    border-left: 2px solid #d1d5db !important;
+}
+
+.tabulator .tabulator-header {
+    background-color: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tabulator .tabulator-header .tabulator-col {
+    background-color: #f9fafb;
+    border-right: none;
+}
+
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable:hover {
+    background-color: #f3f4f6;
+}
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 12px 8px;
+}
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-title {
+    font-weight: 600;
+    color: #374151;
+}
+
+.tabulator-row {
+    border-bottom: none;
+}
+
+.tabulator-row:hover {
+    background-color: #f9fafb !important;
+}
+
+.tabulator-row.tabulator-row-even {
+    background-color: #ffffff;
+}
+
+.tabulator-row.tabulator-row-odd {
+    background-color: #fafafa;
+}
+
+.tabulator .tabulator-cell {
+    padding: 10px 8px;
+    border-right: none;
+}
+
+/* Group headers for categories */
+.tabulator .tabulator-row.tabulator-group {
+    background-color: #f9fafb;
+    color: #374151;
+    font-weight: 600;
+    border: none !important;
+}
+
+.tabulator .tabulator-row.tabulator-group:hover {
+    background-color: #f3f4f6 !important;
+}
+
+/* Subcategory group styling */
+.tabulator .tabulator-row.tabulator-group.tabulator-group-level-1 {
+    background-color: #ffffff;
+    padding-left: 20px;
+}
+
+.tabulator .tabulator-row.tabulator-group.tabulator-group-level-1:hover {
+    background-color: #f9fafb !important;
+}
+
+/* Model name column */
+.model-name {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.model-subtext {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* Tokens and cost styling */
+.tokens-cell {
+    color: #3b82f6;
+    font-variant-numeric: tabular-nums;
+}
+
+.cost-cell {
+    color: #f59e0b;
+    font-variant-numeric: tabular-nums;
+}
+
+.efficiency-cell {
+    color: #10b981;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Total score styling */
+.total-score {
+    font-weight: 700;
+    color: #1f2937;
+    font-size: 15px;
+}
+
+/* Question index styling */
+.question-index {
+    font-weight: 600;
+    color: #4b5563;
+    font-family: ui-monospace, monospace;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tabulator .tabulator-cell {
+        padding: 8px 4px;
+        font-size: 13px;
+    }
+
+    .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+        padding: 10px 4px;
+    }
+
+    .rank-medal {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+}
+
+/* Loading state */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Points column */
+.points-cell {
+    font-weight: 600;
+    color: #6366f1;
+}
