@@ -1,8 +1,14 @@
 {
   "runs": [
     {
+      "file": "performance_table_20260123_140357.html",
+      "date": "2026-01-23 14:03:57",
+      "name": "2026-01-23 14:03:57"
+    },
+    {
       "file": "performance_table_mock_extended.html",
-      "date": "2026-01-21 16:19:52"
+      "date": "2026-01-21 16:19:52",
+      "name": "performance_table_mock_extended.html (2026-01-21 16:19:52)"
     }
   ]
 }

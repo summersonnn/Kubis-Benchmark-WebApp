@@ -29,14 +29,38 @@ def main():
     # listdir gives arbitrary order; sort by name usually sorts by date for these filenames
     files = sorted(os.listdir(RUNS_DIR), reverse=True)
 
+    run_data = []
+
     for f in files:
         if f.endswith('.html'):
             date_str = get_date_from_filename(f)
-            runs.append({
+            
+            # Determine display name
+            # If filename is standard timestamp format, name = date_str
+            # If filename is custom, name = filename
+            is_standard = bool(re.match(r'\d{8}_\d{6}\.html', f)) or \
+                         bool(re.match(r'performance_table_\d{8}_\d{6}\.html', f))
+            
+            if is_standard:
+                display_name = date_str
+            else:
+                display_name = f"{f} ({date_str})"
+
+            run_data.append({
                 "file": f,
-                "date": date_str
+                "date": date_str,
+                "name": display_name,
+                "timestamp": date_str  # Used for sorting
             })
-            print(f"  Found: {f} ({date_str})")
+            print(f"  Found: {f} -> {display_name}")
+
+    # Sort runs by date descending
+    run_data.sort(key=lambda x: x['timestamp'], reverse=True)
+    
+    # Remove temporary timestamp field and build final list
+    for r in run_data:
+        del r['timestamp']
+        runs.append(r)
 
     # Write to JSON
     with open(MANIFEST_FILE, 'w') as f:

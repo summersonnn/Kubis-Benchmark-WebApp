@@ -90,7 +90,7 @@ function initTabs() {
  * Load the runs manifest
  */
 async function loadManifest() {
-    const response = await fetch('data/runs.json');
+    const response = await fetch(`data/runs.json?t=${new Date().getTime()}`);
     if (!response.ok) {
         throw new Error(`Failed to load manifest: ${response.status}`);
     }
@@ -107,7 +107,7 @@ function populateRunSelector(runs) {
     runs.forEach((run, index) => {
         const option = document.createElement('option');
         option.value = run.file;
-        option.textContent = run.date;
+        option.textContent = run.name || run.date;
         if (index === 0) option.selected = true;
         selector.appendChild(option);
     });
@@ -682,31 +682,31 @@ function renderDetailTable(data) {
     }
 
     detailTable = new Tabulator('#detail-table', {
-            data: tableData,
-            layout: 'fitDataFill',
-            groupBy: ['category', 'subcategory'],
-            groupStartOpen: [true, true],
-            groupHeader: (value, count, data, group) => {
-                const level = group.getParentGroup() ? 1 : 0;
-                // Handle special total category
-                if (value === 'zzz_Grand Total') {
-                    return `<span style="font-weight: 700;">Grand Total</span>`;
-                }
-                if (level === 0) {
-                    return `<span style="font-weight: 600;">${value}</span> <span style="opacity: 0.7; margin-left: 8px;">(${count} questions)</span>`;
-                }
-                // Handle subcategory totals
-                if (value === 'zzz_Total') {
-                    return `<span style="font-weight: 600; padding-left: 10px;">Category Total</span>`;
-                }
-                return `<span style="font-weight: 500; padding-left: 10px;">${value === '(none)' ? 'General' : value}</span> <span style="opacity: 0.7; margin-left: 8px;">(${count})</span>`;
-            },
-            columns: columns,
-            columnDefaults: {
-                headerSort: false,
-                headerHozAlign: 'center'
+        data: tableData,
+        layout: 'fitDataFill',
+        groupBy: ['category', 'subcategory'],
+        groupStartOpen: [true, true],
+        groupHeader: (value, count, data, group) => {
+            const level = group.getParentGroup() ? 1 : 0;
+            // Handle special total category
+            if (value === 'zzz_Grand Total') {
+                return `<span style="font-weight: 700;">Grand Total</span>`;
             }
-        });
+            if (level === 0) {
+                return `<span style="font-weight: 600;">${value}</span> <span style="opacity: 0.7; margin-left: 8px;">(${count} questions)</span>`;
+            }
+            // Handle subcategory totals
+            if (value === 'zzz_Total') {
+                return `<span style="font-weight: 600; padding-left: 10px;">Category Total</span>`;
+            }
+            return `<span style="font-weight: 500; padding-left: 10px;">${value === '(none)' ? 'General' : value}</span> <span style="opacity: 0.7; margin-left: 8px;">(${count})</span>`;
+        },
+        columns: columns,
+        columnDefaults: {
+            headerSort: false,
+            headerHozAlign: 'center'
+        }
+    });
 }
 
 /**
