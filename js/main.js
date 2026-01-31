@@ -423,45 +423,114 @@ async function loadQuestions(filename) {
 
         if (response.ok) {
             const text = await response.text();
-            // Configure marked (optional, but good for security if we were worried about raw HTML, though we trust this content)
-            // marked.parse is available from the CDN script
+            // Configure marked
             const html = marked.parse(text);
 
             // Create a temporary container to manipulate the DOM
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
 
-            // Define the Logs HTML structure
-            const loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\\n\\n[2026-02-01 10:00:01] INFO: Starting execution...\\n[2026-02-01 10:00:02] DEBUG: Loading model parameters...\\n[2026-02-01 10:00:05] INFO: Processing input...\\n[2026-02-01 10:00:08] SUCCESS: Output generated.";
-
-            const createLogsSection = () => {
+            // Define the Logs HTML structure builder
+            const createLogsSection = (logContent, questionId) => {
                 const details = document.createElement('details');
                 details.className = 'group mb-12 rounded-lg bg-gray-900 border border-gray-700 overflow-hidden';
+
+                // If no logs found, maybe styled differently or just text
+                // formatting the generic/missing msg
+                const isGeneric = !logContent || logContent.startsWith("No logs found");
 
                 details.innerHTML = `
                     <summary class="flex items-center justify-between p-4 cursor-pointer bg-gray-800 hover:bg-gray-750 transition-colors list-none">
                         <div class="flex items-center text-gray-200 font-medium select-none">
-                            <span class="mr-2">📜</span> Execution Logs
+                            <span class="mr-2">📜</span> Execution Logs${questionId ? ` (${questionId})` : ''}
                         </div>
                         <div class="transform group-open:rotate-180 transition-transform duration-200 text-gray-400">
                             ▼
                         </div>
                     </summary>
-                    <div class="p-4 bg-gray-950 text-gray-400 font-mono text-xs overflow-y-auto max-h-64 whitespace-pre-wrap custom-scrollbar border-t border-gray-800">${loremIpsum}</div>
+                    <div class="p-4 bg-gray-950 text-gray-400 font-mono text-xs overflow-y-auto max-h-96 whitespace-pre-wrap custom-scrollbar border-t border-gray-800">${logContent || 'No logs available.'}</div>
                 `;
                 return details;
             };
 
-            // Inject Logs before every <hr>
-            const hrs = tempDiv.querySelectorAll('hr');
-            hrs.forEach(hr => {
-                hr.parentNode.insertBefore(createLogsSection(), hr);
-            });
+            // 1. Identify all questions and their associated logs
+            //    We assume each question starts with an <h3> containing the ID (e.g. "A3: ...")
+            //    And the logs should be inserted before the next <hr> (or end of section)
 
-            // Check if we need to add one at the very end (if the last element isn't an HR)
-            if (tempDiv.lastElementChild && tempDiv.lastElementChild.tagName !== 'HR') {
-                tempDiv.appendChild(createLogsSection());
+            const headers = tempDiv.querySelectorAll('h3');
+            const logFetches = [];
+
+            // Helper to fetch log
+            const fetchLog = async (id) => {
+                try {
+                    const res = await fetch(`data/logs/${id}_logs.txt`);
+                    if (res.ok) {
+                        return await res.text();
+                    }
+                } catch (e) {
+                    console.warn(`Could not fetch logs for ${id}`, e);
+                }
+                return `No logs found for ${id}`;
+            };
+
+            // Using a loop to find insertion points matches and start fetches
+            for (let i = 0; i < headers.length; i++) {
+                const header = headers[i];
+                const text = header.textContent.trim();
+                const match = text.match(/^(A\d+(?:\.\d+)?)/); // e.g., A3, A26.1
+
+                if (match) {
+                    const questionId = match[1];
+
+                    // Find the insertion point (the <hr> following this header, but before the next header)
+                    // We iterate siblings until we find HR or the next H3
+                    let currentNode = header.nextElementSibling;
+                    let insertionPoint = null;
+
+                    while (currentNode) {
+                        if (currentNode.tagName === 'HR') {
+                            insertionPoint = currentNode;
+                            break;
+                        }
+                        if (currentNode.tagName === 'H3') {
+                            // Hit the next question without seeing an HR, insert before this new header
+                            // (Though usually markdown structure has HRs)
+                            insertionPoint = currentNode;
+                            break;
+                        }
+                        currentNode = currentNode.nextElementSibling;
+                    }
+
+                    // If we reached the end without HR or H3, append to end (handled by insertBefore(node, null))
+
+                    logFetches.push({
+                        id: questionId,
+                        insertionPoint: insertionPoint,
+                        parent: header.parentNode, // Should be tempDiv usually
+                        limitNode: currentNode // For "end of container" check logic if needed
+                    });
+                }
             }
+
+            // 2. Fetch all logs in parallel
+            const logContents = await Promise.all(
+                logFetches.map(async (item) => {
+                    const content = await fetchLog(item.id);
+                    return { ...item, content };
+                })
+            );
+
+            // 3. Inject the log sections
+            logContents.forEach(item => {
+                const section = createLogsSection(item.content, item.id);
+                if (item.insertionPoint) {
+                    // standard case: before <hr>
+                    item.parent.insertBefore(section, item.insertionPoint);
+                } else {
+                    // end of container case
+                    item.parent.appendChild(section);
+                }
+            });
 
             // Render with Tailwind Typography (prose)
             container.innerHTML = `<div class="prose prose-indigo max-w-none text-left">${tempDiv.innerHTML}</div>`;
@@ -487,6 +556,7 @@ async function loadQuestions(filename) {
         `;
     }
 }
+
 
 /**
  * Parse benchmark HTML and extract data
