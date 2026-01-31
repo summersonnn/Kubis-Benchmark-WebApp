@@ -11,11 +11,10 @@ let currentData = null;
 
 // Category display order
 const CATEGORY_ORDER = [
-    'Basic Mix',
-    'Coding',
-    'General Knowledge',
     'Reasoning',
-    'STEM'
+    'General Knowledge',
+    'Math',
+    'Basic Mix'
 ];
 
 /**
@@ -226,7 +225,7 @@ function parseHTML(html) {
     const tfootCells = doc.querySelectorAll('tfoot td');
 
     if (tfootCells.length > 2) {
-        let cellIndex = 2; // Skip first two cells (colspan label)
+        let cellIndex = 1; // Skip first cell (colspan="2" label)
         models.forEach(model => {
             if (cellIndex + 2 < tfootCells.length) {
                 totals[model] = {
@@ -296,7 +295,9 @@ function renderSummaryTable(data) {
     // Calculate max score for all questions
     const totalMaxScore = data.questions.reduce((sum, q) => sum + q.points, 0);
 
-    ['Coding', 'Reasoning', 'STEM'].forEach(category => {
+    const summaryCategories = ['Basic Mix', 'General Knowledge', 'Math', 'Reasoning'];
+
+    summaryCategories.forEach(category => {
         categoryMaxScores[category] = data.questions
             .filter(q => q.category === category)
             .reduce((sum, q) => sum + q.points, 0);
@@ -317,7 +318,7 @@ function renderSummaryTable(data) {
         }, 0);
 
         // Calculate category scores
-        ['Coding', 'Reasoning', 'STEM'].forEach(category => {
+        summaryCategories.forEach(category => {
             const categoryQuestions = data.questions.filter(q => q.category === category);
             const score = categoryQuestions.reduce((sum, q) => {
                 const result = q.results[model];
@@ -343,12 +344,14 @@ function renderSummaryTable(data) {
             scoreNum: scoreNum,
             tokens: tokens,
             cost: cost,
-            codingScore: categoryScores[model]['Coding'] || 0,
-            codingMax: categoryMaxScores['Coding'] || 0,
+            basicMixScore: categoryScores[model]['Basic Mix'] || 0,
+            basicMixMax: categoryMaxScores['Basic Mix'] || 0,
+            generalKnowledgeScore: categoryScores[model]['General Knowledge'] || 0,
+            generalKnowledgeMax: categoryMaxScores['General Knowledge'] || 0,
+            mathScore: categoryScores[model]['Math'] || 0,
+            mathMax: categoryMaxScores['Math'] || 0,
             reasoningScore: categoryScores[model]['Reasoning'] || 0,
-            reasoningMax: categoryMaxScores['Reasoning'] || 0,
-            stemScore: categoryScores[model]['STEM'] || 0,
-            stemMax: categoryMaxScores['STEM'] || 0
+            reasoningMax: categoryMaxScores['Reasoning'] || 0
         };
     });
 
@@ -371,72 +374,89 @@ function renderSummaryTable(data) {
                 {
                     title: 'Rank',
                     field: 'rank',
-                    width: 80,
+                    width: 90,
                     hozAlign: 'center',
                     formatter: rankFormatter
                 },
                 {
                     title: 'Model',
                     field: 'model',
-                    minWidth: 200,
+                    minWidth: 120,
                     formatter: modelFormatter
                 },
                 {
                     title: 'Score',
                     field: 'score',
-                    width: 120,
+                    width: 90,
                     hozAlign: 'center',
                     sorter: 'number',
                     sorterParams: { alignEmptyValues: 'bottom' },
                     formatter: (cell) => `<span class="total-score">${cell.getValue()}</span>`
                 },
                 {
-                    title: 'Total Tokens',
+                    title: '🪙',
                     field: 'tokens',
-                    width: 130,
+                    width: 90,
                     hozAlign: 'right',
                     sorter: 'number',
+                    headerTooltip: 'Tokens',
                     formatter: (cell) => `<span class="tokens-cell">${cell.getValue().toLocaleString()}</span>`
                 },
                 {
-                    title: 'Total Cost',
+                    title: '💵',
                     field: 'cost',
-                    width: 120,
+                    width: 90,
                     hozAlign: 'right',
                     sorter: 'number',
+                    headerTooltip: 'Cost',
                     formatter: (cell) => `<span class="cost-cell">$${cell.getValue().toFixed(2)}</span>`
                 },
                 {
-                    title: 'Coding',
-                    field: 'codingScore',
-                    width: 100,
-                    hozAlign: 'center',
-                    sorter: 'number',
-                    formatter: (cell) => {
-                        const row = cell.getRow().getData();
-                        return `<span class="score-partial">${formatScore(row.codingScore)}/${row.codingMax}</span>`;
-                    }
-                },
-                {
-                    title: 'Reasoning',
+                    title: '🧠',
                     field: 'reasoningScore',
-                    width: 110,
+                    width: 90,
                     hozAlign: 'center',
                     sorter: 'number',
+                    headerTooltip: 'Reasoning',
                     formatter: (cell) => {
                         const row = cell.getRow().getData();
                         return `<span class="score-partial">${formatScore(row.reasoningScore)}/${row.reasoningMax}</span>`;
                     }
                 },
                 {
-                    title: 'STEM',
-                    field: 'stemScore',
-                    width: 100,
+                    title: '🌍',
+                    field: 'generalKnowledgeScore',
+                    width: 90,
                     hozAlign: 'center',
                     sorter: 'number',
+                    headerTooltip: 'General Knowledge',
                     formatter: (cell) => {
                         const row = cell.getRow().getData();
-                        return `<span class="score-partial">${formatScore(row.stemScore)}/${row.stemMax}</span>`;
+                        return `<span class="score-partial">${formatScore(row.generalKnowledgeScore)}/${row.generalKnowledgeMax}</span>`;
+                    }
+                },
+                {
+                    title: '🧮',
+                    field: 'mathScore',
+                    width: 90,
+                    hozAlign: 'center',
+                    sorter: 'number',
+                    headerTooltip: 'Math',
+                    formatter: (cell) => {
+                        const row = cell.getRow().getData();
+                        return `<span class="score-partial">${formatScore(row.mathScore)}/${row.mathMax}</span>`;
+                    }
+                },
+                {
+                    title: '🧩',
+                    field: 'basicMixScore',
+                    width: 90,
+                    hozAlign: 'center',
+                    sorter: 'number',
+                    headerTooltip: 'Basic Mix',
+                    formatter: (cell) => {
+                        const row = cell.getRow().getData();
+                        return `<span class="score-partial">${formatScore(row.basicMixScore)}/${row.basicMixMax}</span>`;
                     }
                 }
             ],
