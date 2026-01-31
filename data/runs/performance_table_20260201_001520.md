@@ -1,6 +1,8 @@
 # Benchmark Run Questions
 
-This run focuses on **reasoning** and **math** capabilities.
+Hi! This month, I’d like to share questions totaling 13 points. I’m not ready to let go of my best questions just yet 😄 Remember, once a question is published, it’s removed from the benchmark, so it won’t appear in the next run.
+
+Below are a few questions that I think would be a good starting point to share.
 
 ## Questions
 

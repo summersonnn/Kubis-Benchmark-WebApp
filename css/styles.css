@@ -295,3 +295,8 @@
     font-weight: 600;
     color: #6366f1;
 }
+
+/* Starred question highlights */
+.question-highlight {
+    background-color: #fef3c7 !important; /* Yellow-100 */
+}

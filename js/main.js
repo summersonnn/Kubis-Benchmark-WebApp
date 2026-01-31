@@ -17,6 +17,9 @@ const CATEGORY_ORDER = [
     'Basic Mix'
 ];
 
+// Questions to be marked with a star and highlighted
+const STARRED_QUESTIONS = ['A3', 'A9', 'A17', 'A20', 'A26.1', 'A27'];
+
 /**
  * Initialize the application
  */
@@ -247,11 +250,19 @@ function initCountdown() {
     if (!timerEl) return;
 
     // Set target date to the 1st of the next month at midnight
+    // Set target date to the 1st of the next month at midnight
     const now = new Date();
     // constructor(year, monthIndex, day) defaults to 00:00:00
     // getMonth() is 0-indexed. +1 moves to next month.
     // Date constructor handles overflow (e.g. month 12 becomes Jan next year) automatically.
-    const targetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime();
+    let targetDateObj = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    // SKIP FEB 1, 2026 -> Go to March 1, 2026
+    if (targetDateObj.getFullYear() === 2026 && targetDateObj.getMonth() === 1) {
+        targetDateObj = new Date(2026, 2, 1);
+    }
+
+    const targetDate = targetDateObj.getTime();
 
     const updateTimer = () => {
         const now = new Date().getTime();
@@ -416,10 +427,44 @@ async function loadQuestions(filename) {
             // marked.parse is available from the CDN script
             const html = marked.parse(text);
 
+            // Create a temporary container to manipulate the DOM
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+
+            // Define the Logs HTML structure
+            const loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\\n\\n[2026-02-01 10:00:01] INFO: Starting execution...\\n[2026-02-01 10:00:02] DEBUG: Loading model parameters...\\n[2026-02-01 10:00:05] INFO: Processing input...\\n[2026-02-01 10:00:08] SUCCESS: Output generated.";
+
+            const createLogsSection = () => {
+                const details = document.createElement('details');
+                details.className = 'group mb-12 rounded-lg bg-gray-900 border border-gray-700 overflow-hidden';
+
+                details.innerHTML = `
+                    <summary class="flex items-center justify-between p-4 cursor-pointer bg-gray-800 hover:bg-gray-750 transition-colors list-none">
+                        <div class="flex items-center text-gray-200 font-medium select-none">
+                            <span class="mr-2">📜</span> Execution Logs
+                        </div>
+                        <div class="transform group-open:rotate-180 transition-transform duration-200 text-gray-400">
+                            ▼
+                        </div>
+                    </summary>
+                    <div class="p-4 bg-gray-950 text-gray-400 font-mono text-xs overflow-y-auto max-h-64 whitespace-pre-wrap custom-scrollbar border-t border-gray-800">${loremIpsum}</div>
+                `;
+                return details;
+            };
+
+            // Inject Logs before every <hr>
+            const hrs = tempDiv.querySelectorAll('hr');
+            hrs.forEach(hr => {
+                hr.parentNode.insertBefore(createLogsSection(), hr);
+            });
+
+            // Check if we need to add one at the very end (if the last element isn't an HR)
+            if (tempDiv.lastElementChild && tempDiv.lastElementChild.tagName !== 'HR') {
+                tempDiv.appendChild(createLogsSection());
+            }
+
             // Render with Tailwind Typography (prose)
-            // Removed p-12 from parent in HTML logic if we want, but here we can just use the inner content.
-            // The parent has p-12. We can reset it or keep it.
-            container.innerHTML = `<div class="prose prose-indigo max-w-none text-left">${html}</div>`;
+            container.innerHTML = `<div class="prose prose-indigo max-w-none text-left">${tempDiv.innerHTML}</div>`;
         } else {
             // Revert to placeholder/empty state
             container.innerHTML = `
@@ -535,7 +580,7 @@ function parseHTML(html) {
  * Extract question index (e.g., "A5" from "A5-V-terminal-unzip")
  */
 function extractQuestionIndex(fullName) {
-    const match = fullName.match(/^(A\d+)/i);
+    const match = fullName.match(/^(A\d+(?:\.\d+)?)/i);
     return match ? match[1] : fullName;
 }
 
@@ -832,7 +877,17 @@ function renderDetailTable(data) {
             width: 100,
             frozen: true,
             headerSort: false,
-            formatter: (cell) => `<span class="question-index">${cell.getValue()}</span>`
+            formatter: (cell) => {
+                const value = cell.getValue();
+                const isStarred = STARRED_QUESTIONS.includes(value);
+                if (isStarred) {
+                    const el = cell.getElement();
+                    el.classList.add('question-highlight');
+                    el.setAttribute('title', 'This question is published');
+                    return `<span class="question-index">${value}⭐</span>`;
+                }
+                return `<span class="question-index">${value}</span>`;
+            }
         },
         {
             title: 'Points',
