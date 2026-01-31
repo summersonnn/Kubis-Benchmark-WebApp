@@ -23,6 +23,8 @@ const CATEGORY_ORDER = [
 async function init() {
     try {
         initTabs();
+        initHomeNav();
+        initCountdown();
         initChartCategorySelector();
         const manifest = await loadManifest();
         populateRunSelector(manifest.runs);
@@ -118,6 +120,10 @@ function populateRunSelector(runs) {
             document.querySelectorAll('.run-item').forEach(el => el.classList.remove('bg-gray-100', 'active-run-header'));
             document.querySelectorAll('.run-subnav button').forEach(el => el.classList.remove('bg-indigo-50', 'text-indigo-700'));
 
+            // Remove active state from Home
+            const btnHome = document.getElementById('nav-home');
+            if (btnHome) btnHome.classList.remove('bg-gray-100', 'text-gray-900');
+
             // Set active state for this run
             header.classList.add('bg-gray-100', 'active-run-header');
 
@@ -161,6 +167,7 @@ function populateRunSelector(runs) {
             if (pageResults && pagePublished) {
                 pageResults.classList.remove('hidden');
                 pagePublished.classList.add('hidden');
+                document.getElementById('page-home')?.classList.add('hidden');
 
                 if (summaryTable) summaryTable.redraw();
                 if (detailTable) detailTable.redraw();
@@ -183,6 +190,7 @@ function populateRunSelector(runs) {
             if (pageResults && pagePublished) {
                 pageResults.classList.add('hidden');
                 pagePublished.classList.remove('hidden');
+                document.getElementById('page-home')?.classList.add('hidden');
             }
         };
 
@@ -200,6 +208,73 @@ function populateRunSelector(runs) {
         container.appendChild(subNav);
         listContainer.appendChild(container);
     });
+}
+
+/**
+ * Initialize Home navigation
+ */
+function initHomeNav() {
+    const btnHome = document.getElementById('nav-home');
+    if (!btnHome) return;
+
+    btnHome.onclick = () => {
+        // Clear run active states
+        document.querySelectorAll('.run-item').forEach(el => el.classList.remove('bg-gray-100', 'active-run-header'));
+        document.querySelectorAll('.run-subnav button').forEach(el => el.classList.remove('bg-indigo-50', 'text-indigo-700'));
+        document.querySelectorAll('.run-subnav').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.run-item .transform').forEach(el => el.classList.remove('rotate-180'));
+
+        // Set Home active
+        btnHome.classList.add('bg-gray-100', 'text-gray-900');
+
+        // Show Home page
+        const pageHome = document.getElementById('page-home');
+        const pageResults = document.getElementById('page-results');
+        const pagePublished = document.getElementById('page-published');
+
+        if (pageHome) pageHome.classList.remove('hidden');
+        if (pageResults) pageResults.classList.add('hidden');
+        if (pagePublished) pagePublished.classList.add('hidden');
+    };
+}
+
+
+/**
+ * Initialize Countdown Timer
+ */
+function initCountdown() {
+    const timerEl = document.getElementById('countdown-timer');
+    if (!timerEl) return;
+
+    // Set target date to the 1st of the next month at midnight
+    const now = new Date();
+    // constructor(year, monthIndex, day) defaults to 00:00:00
+    // getMonth() is 0-indexed. +1 moves to next month.
+    // Date constructor handles overflow (e.g. month 12 becomes Jan next year) automatically.
+    const targetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime();
+
+    const updateTimer = () => {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance < 0) {
+            timerEl.textContent = "00:00:00:00";
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        const pad = (n) => n.toString().padStart(2, '0');
+
+        // Format: 02d 14h 33m 10s
+        timerEl.textContent = `${pad(days)}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+    };
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
 }
 
 /**
