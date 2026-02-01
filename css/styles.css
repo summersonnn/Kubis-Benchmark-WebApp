@@ -298,5 +298,6 @@
 
 /* Starred question highlights */
 .question-highlight {
-    background-color: #fef3c7 !important; /* Yellow-100 */
+    background-color: #fff9c4 !important;
+    /* Slightly more visible yellow */
 }
