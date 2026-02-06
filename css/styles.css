@@ -163,6 +163,11 @@
 
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
     padding: 12px 8px;
+    white-space: normal;
+}
+
+.tabulator .tabulator-header .tabulator-col {
+    height: auto !important;
 }
 
 .tabulator .tabulator-header .tabulator-col .tabulator-col-title {

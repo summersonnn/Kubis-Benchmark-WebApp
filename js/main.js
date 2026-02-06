@@ -109,11 +109,11 @@ function populateRunSelector(runs) {
         // Sub-navigation buttons
         const btnResults = document.createElement('button');
         btnResults.className = 'w-full flex items-center px-3 py-1.5 text-xs font-medium rounded-md hover:bg-indigo-50 hover:text-indigo-700 text-gray-600';
-        btnResults.innerHTML = '<span class="mr-2">📊</span> Results';
+        btnResults.textContent = 'Results';
 
         const btnPublished = document.createElement('button');
         btnPublished.className = 'w-full flex items-center px-3 py-1.5 text-xs font-medium rounded-md hover:bg-indigo-50 hover:text-indigo-700 text-gray-600';
-        btnPublished.innerHTML = '<span class="mr-2">📝</span> Questions';
+        btnPublished.textContent = 'Questions';
 
         // Append buttons to subnav
         subNav.appendChild(btnResults);
@@ -514,7 +514,7 @@ async function loadQuestions(filename) {
                 details.innerHTML = `
                     <summary class="flex items-center justify-between p-4 cursor-pointer bg-gray-800 hover:bg-gray-750 transition-colors list-none">
                         <div class="flex items-center text-gray-200 font-medium select-none">
-                            <span class="mr-2">📜</span> Execution Logs${questionId ? ` (${questionId})` : ''}
+                            Execution Logs${questionId ? ` (${questionId})` : ''}
                         </div>
                         <div class="transform group-open:rotate-180 transition-transform duration-200 text-gray-400">
                             ▼
@@ -620,7 +620,7 @@ async function loadQuestions(filename) {
             // Revert to placeholder/empty state
             container.innerHTML = `
                 <div class="text-center">
-                    <div class="text-6xl mb-4">📚</div>
+                    <div class="text-6xl mb-4"></div>
                     <h3 class="text-xl font-medium text-gray-900 mb-2">Question Library</h3>
                     <p class="text-gray-500 max-w-lg mx-auto">
                         No questions documentation found for this run.
@@ -962,7 +962,7 @@ function renderSummaryTable(data, tableSelector = '#summary-table') {
                     formatter: (cell) => `<span class="total-score">${cell.getValue()}</span>`
                 },
                 {
-                    title: '🪙',
+                    title: 'Tokens',
                     field: 'tokens',
                     width: 93,
                     hozAlign: 'right',
@@ -974,7 +974,7 @@ function renderSummaryTable(data, tableSelector = '#summary-table') {
                     }
                 },
                 {
-                    title: '💵',
+                    title: 'Cost',
                     field: 'cost',
                     width: 93,
                     hozAlign: 'right',
@@ -986,9 +986,9 @@ function renderSummaryTable(data, tableSelector = '#summary-table') {
                     }
                 },
                 {
-                    title: '🧠',
+                    title: 'Reasoning',
                     field: 'reasoningScore',
-                    width: 93,
+                    width: 120,
                     hozAlign: 'center',
                     sorter: 'number',
                     headerTooltip: 'Reasoning',
@@ -998,21 +998,21 @@ function renderSummaryTable(data, tableSelector = '#summary-table') {
                     }
                 },
                 {
-                    title: '🌍',
+                    title: 'World<br>Knowledge',
                     field: 'generalKnowledgeScore',
-                    width: 93,
+                    width: 120,
                     hozAlign: 'center',
                     sorter: 'number',
-                    headerTooltip: 'General Knowledge',
+                    headerTooltip: 'World Knowledge',
                     formatter: (cell) => {
                         const row = cell.getRow().getData();
                         return `<span class="score-partial">${formatScore(row.generalKnowledgeScore)}/${formatScore(row.generalKnowledgeMax)}</span>`;
                     }
                 },
                 {
-                    title: '🧮',
+                    title: 'Math',
                     field: 'mathScore',
-                    width: 93,
+                    width: 120,
                     hozAlign: 'center',
                     sorter: 'number',
                     headerTooltip: 'Math',
@@ -1022,9 +1022,9 @@ function renderSummaryTable(data, tableSelector = '#summary-table') {
                     }
                 },
                 {
-                    title: '🧩',
+                    title: 'Basic Mix',
                     field: 'basicMixScore',
-                    width: 93,
+                    width: 120,
                     hozAlign: 'center',
                     sorter: 'number',
                     headerTooltip: 'Basic Mix',
@@ -1120,7 +1120,7 @@ function renderDetailTable(data) {
                     const el = cell.getElement();
                     el.classList.add('question-highlight');
                     el.setAttribute('title', 'This question is published');
-                    return `<span class="question-index">${value}⭐</span>`;
+                    return `<span class="question-index">${value} (*)</span>`;
                 }
                 return `<span class="question-index">${value}</span>`;
             }
